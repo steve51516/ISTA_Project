@@ -74,4 +74,3 @@
 	* Notifications are sent to Technician and Manager.
 * User requests a status update
 	* Notification is sent to Technician.
-
