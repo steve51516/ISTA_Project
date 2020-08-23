@@ -1,4 +1,4 @@
-<div style="text-align: center"> # Functional Requirements</div>
+# Functional Requirements
 #### This document contains the functional requirements that specify all the fundamental actions of the software.
 
 ##### ID:FR1
