@@ -2,9 +2,9 @@
 #### This document contains the functional requirements that specify all the fundamental actions of the software.
 
 ##### ID:FR1
-TITLE: Host Service
-DESC: A host service will be responsible for hosting the application, such as ASP.NET MVC. This will provide the user with a URL to access the application.
-RAT: To provide access for the user.
+TITLE: Host Service\
+DESC: A host service will be responsible for hosting the application, such as ASP.NET MVC. This will provide the user with a URL to access the application.\
+RAT: To provide access for the user.\
 DEP: None
 
 ##### ID:FR2  -- Break down further form high to low level.
