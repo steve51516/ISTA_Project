@@ -18,7 +18,7 @@ TITLE: Account Creation
 DESC: If the user does not already have a user account, there must be a method to create a new account.
 RAT: An account is needed to authenticate to the application and use it.
 DEP: FR1
--- User is going to have to access the account creation facility, 
+1. User is going to have to access the account creation facility, 
   - submit user name, method
   - check if it's unique
   - submit password, method
