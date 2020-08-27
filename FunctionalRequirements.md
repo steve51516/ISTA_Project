@@ -7,7 +7,7 @@ DESC: A host service will be responsible for hosting the application, such as AS
 RAT: To provide access for the user.
 DEP: None
 
-##### ID:FR2
+##### ID:FR2  -- Break down further form high to low level.
 TITLE: Ability to upload and download files
 DESC: The user should be able to upload image files, and text files when creating tickets or submitting a new comment. The file paths will be stored in the database.
 RAT: The user needs to be able to provide as much information in a variety of methods
@@ -18,12 +18,22 @@ TITLE: Account Creation
 DESC: If the user does not already have a user account, there must be a method to create a new account.
 RAT: An account is needed to authenticate to the application and use it.
 DEP: FR1
+-- User is going to have to access the account creation facility, 
+  - submit user name, method
+  - check if it's unique
+  - submit password, method
+  - Complexity requirements
+  - Duplicate password check
+  - submit other required information to admin, method
+  - have admin approve it
+  - write to database 
 
 ##### ID:FR4
 TITLE: Authentication
 DESC: The application will provide an authentication service such as OAuth. This will provide identification while creating and managing tickets.
 RAT: The user needs to have Authenticate to properly store and retrieve data.
 DEP: FR1, FR3
+
 
 ##### ID:FR5
 TITLE: Notification System
