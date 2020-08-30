@@ -8,10 +8,10 @@ RAT: To provide access for the user.\
 DEP: None
 
 ##### ID:FR2  -- Break down further form high to low level.
-TITLE: Ability to upload and download files
+TITLE: Ability to upload and download files\
 DESC: The user should be able to upload image files, and text files when creating tickets or submitting a new comment. The file paths will be stored in the database.
-RAT: The user needs to be able to provide as much information in a variety of methods
-DEP: FR1
+RAT: The user needs to be able to provide as much information in a variety of methods\
+DEP: FR1\
 
 ##### ID:FR3
 TITLE: Account Creation
