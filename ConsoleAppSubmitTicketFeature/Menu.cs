@@ -1,17 +1,13 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.ComponentModel.Design;
-using System.Linq;
-using System.Reflection;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace ConsoleAppSubmitTicketFeature
 {
     class Menu
     {
-        static Queue<Ticket> openTickets = new Queue<Ticket>();
-        static List<Ticket> closedTickets = new List<Ticket>();
+        static Queue<int> ticketQueue = new Queue<int>();
+        //static Queue<Dictionary<int, Ticket>> reopenedTickets = new Queue<System.Collections.Generic.Dictionary<int, Ticket>>();
+        static Dictionary<int, Ticket> openTickets = new Dictionary<int, Ticket>();
         public void Selection()
         {
             int select = 0;
@@ -22,7 +18,8 @@ namespace ConsoleAppSubmitTicketFeature
                 Console.WriteLine("Help Desk Ticket Application\n");
                 Console.WriteLine("1) Create New Ticket");
                 Console.WriteLine("2) View Existing Tickets");
-                Console.WriteLine("3) Exit Application");
+                Console.WriteLine("3) Exit Application\n");
+                Console.Write("Enter Selection: ");
                 try
                 {
                     select = int.Parse(Console.ReadLine());
@@ -39,11 +36,11 @@ namespace ConsoleAppSubmitTicketFeature
                 {
                     case 1:
                         Console.Clear();
-                        NewTicket();
+                        newTicket();
                         break;
                     case 2:
                         Console.Clear();
-                        GetTicket();
+                        getTicketMenu();
                         break;
                     case 3:
                         Console.Clear();
@@ -57,9 +54,9 @@ namespace ConsoleAppSubmitTicketFeature
                 }
             } while (exit);
         }
-        public void NewTicket()
+        void newTicket()
         {
-            Console.Write("Please enter title: ");
+            Console.Write("Enter title: ");
             string title;
             string desc;
             do
@@ -73,6 +70,7 @@ namespace ConsoleAppSubmitTicketFeature
 
             do
             {
+                Console.Write("Enter a description: ");
                 desc = Console.ReadLine();
                 if (desc.Length < 30)
                     Console.WriteLine("Description must be at least 30 characters.");
@@ -82,22 +80,25 @@ namespace ConsoleAppSubmitTicketFeature
             string loc;
             do
             {
+                Console.Write("Enter a location: ");
                 loc = Console.ReadLine();
                 if (loc == "")
-                    Console.WriteLine("Location cannot be null");
+                    Console.WriteLine("Location cannot be empty.");
             } while (loc == "");
             Ticket ticket = new Ticket(title, desc, loc);
-
-            openTickets.Enqueue(ticket);
+            ticket.tid = openTickets.Count + 1;
+            openTickets.Add(ticket.tid, ticket);
+            ticketQueue.Enqueue(ticket.tid);
+            Console.WriteLine($"\nSuccessfully created ticket with title \"{ticket.Title}\", TicketID: {ticket.tid}\n");
         }
-        public void GetTicket()
+        void getTicketMenu()
         {
-            bool exit = true;
             int select = 0;
             do
             {
                 Console.WriteLine("1) View Open Tickets");
-                Console.WriteLine("2) View Closed Tickets");
+                Console.WriteLine("2) View All Open Tickets");
+                Console.WriteLine("3) View Closed Tickets");
                 Console.Write("Enter Selection: ");
                 try
                 {
@@ -105,36 +106,46 @@ namespace ConsoleAppSubmitTicketFeature
                 }
                 catch (FormatException)
                 {
-                    Console.WriteLine("You must enter a 1 or 2.");
+                    Console.WriteLine("You must enter a 1, 2 or 3.");
                 }
-            } while (exit);
-            if (select == 1)
-            {
-                foreach (var ticket in openTickets)
-                    Console.WriteLine(ticket);
-            }
-            else if (select == 2)
-            {
-                foreach (var ticket in closedTickets)
+                switch (select)
                 {
-                    Console.WriteLine(ticket);
+                    case 1:
+                        getOneTicket();
+                        break;
+                    default:
+                        break;
                 }
-            }
-
-            exit = true;
+            } while (select <= 0 || select >= 4);
+            
+        }
+        void getOneTicket()
+        {
+            int tid = 0;
             do
             {
-                int tid;
-                Console.WriteLine("Enter ticket ID you would like to view: ");
+                Console.Write("Enter ticket ID you would like to view: ");
                 try
                 {
                     tid = int.Parse(Console.ReadLine());
                 }
-                catch (Exception)
+                catch (FormatException)
                 {
                     Console.WriteLine("You must enter an intiger.");
                 }
-            } while (exit);
+                if (openTickets.ContainsKey(tid))
+                {
+                    openTickets.TryGetValue(tid, out Ticket ticket);
+
+                    Console.Write($"TicketID: {ticket.tid}\n");
+                    Console.Write($"Ticket Title: {ticket.Title}\n");
+                    Console.Write($"Ticket Location: {ticket.location}\n");
+                    Console.WriteLine($"Ticket Description: {ticket.GetDescription()}");
+                }
+                else if (!openTickets.ContainsKey(tid))
+                    Console.Write($"TicketID {tid} was not found. Try again, or enter -1 to exit: ");
+
+            } while (!openTickets.ContainsKey(tid) && tid != -1);
         }
     }
 }
