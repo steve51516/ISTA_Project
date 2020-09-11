@@ -6,7 +6,6 @@ namespace ConsoleAppSubmitTicketFeature
     class Menu
     {
         static Queue<int> ticketQueue = new Queue<int>();
-        //static Queue<Dictionary<int, Ticket>> reopenedTickets = new Queue<System.Collections.Generic.Dictionary<int, Ticket>>();
         static Dictionary<int, Ticket> openTickets = new Dictionary<int, Ticket>();
         public void Selection()
         {
