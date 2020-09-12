@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace ConsoleAppSubmitTicketFeature
+namespace ConsoleHelpTicket
 {
     public class Ticket
     {

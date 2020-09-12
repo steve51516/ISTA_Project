@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 
-namespace ConsoleAppSubmitTicketFeature
+namespace ConsoleHelpTicket
 {
     class Menu
     {
