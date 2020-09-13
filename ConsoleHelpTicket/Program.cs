@@ -1,17 +1,21 @@
-﻿namespace ConsoleHelpTicket
+﻿using System;
+
+namespace ConsoleHelpTicket
 {
     class Program
     {
         static void Main(string[] args)
         {
-            System.Console.WriteLine("Creating database connection...");
+            Console.WriteLine("Creating database connection...");
             var connection = Data.CreateConnection();
-            System.Console.WriteLine("Creating tables...");
+            Console.WriteLine("Creating tables...");
             Data.CreateTable(connection);
 
             Menu menu = new Menu();
 
-            //menu.Selection();
+            menu.Selection();
+            Console.WriteLine("Closing database connection...");
+            connection.Close();
         }
     }
 }

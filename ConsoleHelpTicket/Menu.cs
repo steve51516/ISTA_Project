@@ -6,7 +6,7 @@ namespace ConsoleHelpTicket
     class Menu
     {
         static Queue<int> ticketQueue = new Queue<int>();
-        static Dictionary<int, Ticket> openTickets = new Dictionary<int, Ticket>();
+        static Dictionary<int, Ticket> openTickets = new Dictionary<int, Ticket>(); // removing dictionary after dependencies transferred to queue
         public void Selection()
         {
             int select = 0;
@@ -85,9 +85,13 @@ namespace ConsoleHelpTicket
                     Console.WriteLine("Location cannot be empty.");
             } while (loc == "");
             Ticket ticket = new Ticket(title, desc, loc);
-            ticket.tid = openTickets.Count + 1;
-            openTickets.Add(ticket.tid, ticket);
+            ticket.tid = ticketQueue.Count + 1;
+            //openTickets.Add(ticket.tid, ticket);
             ticketQueue.Enqueue(ticket.tid);
+            var connection = Data.CreateConnection();
+            Data.Insert(connection, ticket);
+
+
             Console.WriteLine($"\nSuccessfully created ticket with title \"{ticket.Title}\", TicketID: {ticket.tid}\n");
         }
         void getTicketMenu()
@@ -139,7 +143,7 @@ namespace ConsoleHelpTicket
                     Console.Write($"TicketID: {ticket.tid}\n");
                     Console.Write($"Ticket Title: {ticket.Title}\n");
                     Console.Write($"Ticket Location: {ticket.location}\n");
-                    Console.WriteLine($"Ticket Description: {ticket.GetDescription()}");
+                    Console.WriteLine($"Ticket Description: {ticket.Description}");
                 }
                 else if (!openTickets.ContainsKey(tid))
                     Console.Write($"TicketID {tid} was not found. Try again, or enter -1 to exit: ");

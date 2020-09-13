@@ -14,7 +14,7 @@ namespace ConsoleHelpTicket
             AppDomain.CurrentDomain.SetData("DataDirectory", path);
 
             // Create a new database connection:
-            SQLiteConnection sqlite_conn = new SQLiteConnection(@"Data Source=|DataDirectory|\Database.sdf; Version = 3; New = True; Compress = True; ");
+            SQLiteConnection sqlite_conn = new SQLiteConnection(@"Data Source=|DataDirectory|\Tickets.db; Version = 3; New = True; Compress = True; ");
             // Open the connection:
             try
             {
@@ -24,43 +24,69 @@ namespace ConsoleHelpTicket
             {
                 Console.WriteLine(ex);
             }
-            return sqlite_conn;
+            return sqlite_conn; 
         }
 
         public static void CreateTable(SQLiteConnection conn)
         {
             SQLiteCommand sqlite_cmd;
-            string Createsql = "DROP TABLE IF EXISTS Tickets";
-            string Createsql1 = @"CREATE TABLE Tickets(TicketID INTEGER PRIMARY KEY, UID INT NOT NULL, EmpID INT, Title TEXT, Description TEXT," +
-            "Comments TEXT, OpenDate TIMESTAMP DEFAULT CURRENT_TIMESTAMP, ClosedDate TIMESTAMP, OccurDate DATE DATE DEFAULT (datetime('now','localtime'))," +
-            "Open INT DEFAULT 1, Location TEXT, ImagePath BLOB, FOREIGN KEY (UID) REFERENCES Users (UID))";
-            string Createsql2 = @"CREATE TABLE Users(UID INTEGER PRIMARY KEY, Phone INT NOT NULL, email TEXT NOT NULL, Street TEXT, City TEXT, State TEXT," +
-                "Country TEXT DEFAULT \"USA\", ZIP INT, FirstName TEXT NOT NULL, LastName TEXT NOT NULL, Secret TEXT NOT NULL)";
+            string Createsql = @"PRAGMA foreign_keys = ON;";
+            string Createsql2 = @"CREATE TABLE IF NOT EXISTS Tickets(
+                                TicketID INTEGER PRIMARY KEY AUTOINCREMENT, 
+                                EmpID INT, 
+                                Title TEXT, 
+                                Description TEXT,
+                                Comments TEXT, 
+                                CommentTime TIMESTAMP,
+                                OpenDate TIMESTAMP DEFAULT CURRENT_TIMESTAMP, 
+                                ClosedDate TIMESTAMP, 
+                                Open INT DEFAULT 1, 
+                                Location TEXT, 
+                                Image BLOB
+                                --FOREIGN KEY (UID) 
+                                --REFERENCES Users (UID)
+                                );";
+            
+            //string Createsql3 = @"CREATE TABLE IF NOT EXISTS Users(
+            //                    UID INTEGER PRIMARY KEY,
+            //                    Phone INT NOT NULL,
+            //                    email TEXT NOT NULL,
+            //                    Street TEXT,
+            //                    City TEXT,
+            //                    State TEXT,
+            //                    Country TEXT DEFAULT ""USA"",
+            //                    ZIP INT,
+            //                    FirstName TEXT NOT NULL,
+            //                    LastName TEXT NOT NULL,
+            //                    UserName TEXT NOT NULL,
+            //                    Password TEXT NOT NULL
+            //                    );";
             sqlite_cmd = conn.CreateCommand();
             sqlite_cmd.CommandText = Createsql;
             sqlite_cmd.ExecuteNonQuery();
-            sqlite_cmd.CommandText = Createsql1;
-            sqlite_cmd.ExecuteNonQuery();
             sqlite_cmd.CommandText = Createsql2;
             sqlite_cmd.ExecuteNonQuery();
+            //sqlite_cmd.CommandText = Createsql3;
+            //sqlite_cmd.ExecuteNonQuery();
         }
 
-        public static void InsertData(SQLiteConnection conn)
+        public static void Insert(SQLiteConnection conn, Ticket ticket)
         {
-            SQLiteCommand sqlite_cmd;
-            sqlite_cmd = conn.CreateCommand();
-            sqlite_cmd.CommandText = "INSERT INTO SampleTable(Col1, Col2) VALUES('Test Text ', 1); ";
-            sqlite_cmd.ExecuteNonQuery();
-            sqlite_cmd.CommandText = "INSERT INTO SampleTable(Col1, Col2) VALUES('Test1 Text1 ', 2); ";
-            sqlite_cmd.ExecuteNonQuery();
-            sqlite_cmd.CommandText = "INSERT INTO SampleTable(Col1, Col2) VALUES('Test2 Text2 ', 3); ";
-            sqlite_cmd.ExecuteNonQuery();
-
-            sqlite_cmd.CommandText = "INSERT INTO SampleTable1(Col1, Col2) VALUES('Test3 Text3 ', 3); ";
+            SQLiteCommand sqlite_cmd = conn.CreateCommand();
+            Console.WriteLine("Inserting ticket into database");
+            sqlite_cmd.CommandText = $"INSERT INTO Tickets (Title,Description,OpenDate,Location) VALUES (\"{ticket.Title}\", \"{ticket.Description}\", \"{ticket.OpenDate}\", \"{ticket.location}\");";
             sqlite_cmd.ExecuteNonQuery();
         }
+        // TODO: adding update method for comment column
+        //public static void UpdateComment(SQLiteConnection conn, Ticket ticket)
+        //{
+        //    SQLiteCommand sqlite_cmd = conn.CreateCommand();
+        //    Console.WriteLine("Inserting comment into database");
+        //    sqlite_cmd.CommandText = $"UPDATE Ticket"
 
-        public static void ReadData(SQLiteConnection conn)
+        //}
+
+        public static void Query(SQLiteConnection conn)
         {
             SQLiteDataReader sqlite_datareader;
             SQLiteCommand sqlite_cmd;
