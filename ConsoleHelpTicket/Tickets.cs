@@ -9,10 +9,10 @@ namespace ConsoleHelpTicket
         public string location { get; set; }
         public string Description { get; }
         public bool open { get; set; }
-        public int tid { get; set; }
+        public int Tid { get; set;  }
         public DateTime OpenDate { get; }
         public DateTime ClosedDate { get; }
-        private string comment;
+        public string comment { get; set; }
         public Ticket(string title, string desc, string loc)
         {
             Title = title;

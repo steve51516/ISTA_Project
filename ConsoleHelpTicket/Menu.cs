@@ -1,16 +1,23 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Data.SQLite;
 
 namespace ConsoleHelpTicket
 {
     class Menu
     {
-        static Queue<int> ticketQueue = new Queue<int>();
-        static Dictionary<int, Ticket> openTickets = new Dictionary<int, Ticket>(); // removing dictionary after dependencies transferred to queue
+        private static Queue<int> queue = new Queue<int>();
+        private SQLiteConnection connection = Data.CreateConnection();
+        private int numOfTickets;
         public void Selection()
         {
             int select = 0;
             bool exit = true;
+
+            Console.WriteLine("Creating database connection...");
+            Console.WriteLine("Creating tables...");
+            Data.CreateTable(connection);
+            numOfTickets = Data.GetNumber(connection);
 
             do
             {
@@ -43,6 +50,8 @@ namespace ConsoleHelpTicket
                         break;
                     case 3:
                         Console.Clear();
+                        connection.Close();
+                        Console.WriteLine("Closing database connection...");
                         Console.WriteLine("Exiting Application...");
                         exit = false;
                         break;
@@ -85,14 +94,11 @@ namespace ConsoleHelpTicket
                     Console.WriteLine("Location cannot be empty.");
             } while (loc == "");
             Ticket ticket = new Ticket(title, desc, loc);
-            ticket.tid = ticketQueue.Count + 1;
-            //openTickets.Add(ticket.tid, ticket);
-            ticketQueue.Enqueue(ticket.tid);
-            var connection = Data.CreateConnection();
+            ticket.Tid = numOfTickets + 1;
+            queue.Enqueue(ticket.Tid);
             Data.Insert(connection, ticket);
 
-
-            Console.WriteLine($"\nSuccessfully created ticket with title \"{ticket.Title}\", TicketID: {ticket.tid}\n");
+            Console.WriteLine($"\nSuccessfully created ticket with title \"{ticket.Title}\", TicketID: {ticket.Tid}\n");
         }
         void getTicketMenu()
         {
@@ -124,31 +130,48 @@ namespace ConsoleHelpTicket
         }
         void getOneTicket()
         {
-            int tid = 0;
+            int select = 0;
             do
             {
-                Console.Write("Enter ticket ID you would like to view: ");
                 try
                 {
-                    tid = int.Parse(Console.ReadLine());
+                    select = int.Parse(Console.ReadLine());
                 }
                 catch (FormatException)
                 {
-                    Console.WriteLine("You must enter an intiger.");
+                    Console.WriteLine("You must enter a number.");
                 }
-                if (openTickets.ContainsKey(tid))
-                {
-                    openTickets.TryGetValue(tid, out Ticket ticket);
+            } while (select < 1);
 
-                    Console.Write($"TicketID: {ticket.tid}\n");
-                    Console.Write($"Ticket Title: {ticket.Title}\n");
-                    Console.Write($"Ticket Location: {ticket.location}\n");
-                    Console.WriteLine($"Ticket Description: {ticket.Description}");
-                }
-                else if (!openTickets.ContainsKey(tid))
-                    Console.Write($"TicketID {tid} was not found. Try again, or enter -1 to exit: ");
 
-            } while (!openTickets.ContainsKey(tid) && tid != -1);
         }
+        // void getOneTicket()
+        // {
+        //     int tid = 0;
+        //     do
+        //     {
+        //         Console.Write("Enter ticket ID you would like to view: ");
+        //         try
+        //         {
+        //             tid = int.Parse(Console.ReadLine());
+        //         }
+        //         catch (FormatException)
+        //         {
+        //             Console.WriteLine("You must enter an intiger.");
+        //         }
+        //         if (Data.ticketQueue.Contains(tid))
+        //         {
+        //             Data.ticketQueue.TryGetValue(tid, out Ticket ticket);
+
+        //             Console.Write($"TicketID: {ticket.tid}\n");
+        //             Console.Write($"Ticket Title: {ticket.Title}\n");
+        //             Console.Write($"Ticket Location: {ticket.location}\n");
+        //             Console.WriteLine($"Ticket Description: {ticket.Description}");
+        //         }
+        //         else if (!Data.ticketQueue.Contains(tid))
+        //             Console.Write($"TicketID {tid} was not found. Try again, or enter -1 to exit: ");
+
+        //     } while (!Data.ticketQueue.Contains(tid) && tid != -1);
+        //}
     }
 }
