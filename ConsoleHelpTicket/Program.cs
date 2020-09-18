@@ -1,15 +1,16 @@
 ﻿using System;
-using System.Collections;
-using System.Collections.Generic;
+using System.Data.SQLite;
 
 namespace ConsoleHelpTicket
 {
     class Program
     {
-        //static public Queue<int> Queue { get; set; }
         static void Main(string[] args)
         {
             Menu menu = new Menu();
+
+            menu.initDatabase();
+            menu.initQueue();
 
             menu.Selection();
         }

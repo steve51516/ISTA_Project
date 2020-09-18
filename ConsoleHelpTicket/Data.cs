@@ -25,7 +25,7 @@ namespace ConsoleHelpTicket
                 System.Console.WriteLine("Connection Failed.");
                 Console.WriteLine(ex);
             }
-            return sqlite_conn; 
+            return sqlite_conn;
         }
 
         public static void CreateTable(SQLiteConnection conn)
@@ -38,7 +38,7 @@ namespace ConsoleHelpTicket
                                 Title TEXT, 
                                 Description TEXT,
                                 Comments TEXT, 
-                                CommentTime TIMESTAMP,
+                                CommentTime TIMPSTAMP,
                                 OpenDate TIMESTAMP DEFAULT CURRENT_TIMESTAMP, 
                                 ClosedDate TIMESTAMP, 
                                 Open INT DEFAULT 1, 
@@ -47,7 +47,7 @@ namespace ConsoleHelpTicket
                                 --FOREIGN KEY (UID) 
                                 --REFERENCES Users (UID)
                                 );";
-            
+
             //string Createsql3 = @"CREATE TABLE IF NOT EXISTS Users(
             //                    UID INTEGER PRIMARY KEY,
             //                    Phone INT NOT NULL,
@@ -73,12 +73,10 @@ namespace ConsoleHelpTicket
 
         public static void Insert(SQLiteConnection conn, Ticket ticket)
         {
-            SQLiteCommand sqlite_cmd = conn.CreateCommand();
+            var cmd = new SQLiteCommand($"INSERT INTO Tickets (Title,Description,OpenDate,Location) VALUES (\"{ticket.Title}\", \"{ticket.Description}\", \"{ticket.OpenDate}\", \"{ticket.location}\");", conn);
             Console.WriteLine("Inserting ticket into database");
-            sqlite_cmd.CommandText = $"INSERT INTO Tickets (Title,Description,OpenDate,Location) VALUES (\"{ticket.Title}\", \"{ticket.Description}\", \"{ticket.OpenDate}\", \"{ticket.location}\");";
-            sqlite_cmd.ExecuteNonQuery();
+            cmd.ExecuteNonQuery();
         }
-        // TODO: adding update method for comment column
         public static void UpdateComment(SQLiteConnection conn, Ticket ticket, string comment)
         {
             SQLiteCommand sqlite_cmd = conn.CreateCommand();
@@ -94,51 +92,67 @@ namespace ConsoleHelpTicket
                 Console.WriteLine("Failed to update ticket.");
                 Console.WriteLine(ex);
             }
-
         }
-        public static void Query(SQLiteConnection conn)
+        public static int GetTicketCount(SQLiteConnection conn)
         {
-            SQLiteDataReader sqlite_datareader;
-            SQLiteCommand sqlite_cmd;
-            sqlite_cmd = conn.CreateCommand();
-            sqlite_cmd.CommandText = "SELECT * FROM SampleTable";
-
-            sqlite_datareader = sqlite_cmd.ExecuteReader();
-            while (sqlite_datareader.Read())
-            {
-                string myreader = sqlite_datareader.GetString(0);
-                Console.WriteLine(myreader);
-            }
-            conn.Close();
-        }
-        //public static void DoesExist(SQLiteConnection conn)
-        //{
-        //    SQLiteDataReader sqlite_datareader;
-        //    SQLiteCommand sqlite_cmd;
-        //    sqlite_cmd = conn.CreateCommand();
-        //    sqlite_cmd.CommandText = "SELECT TicketID FROM Tickets;";
-        //}
-        public static int GetNumber(SQLiteConnection conn)
-        {
-
-            var ticket_count = 0;
+            int countValue = 0;
             try
             {
-                SQLiteCommand sqlite_cmd;
-                sqlite_cmd = conn.CreateCommand();
-                sqlite_cmd.CommandText = "SELECT TicketID FROM Tickets ORDER BY TicketID DESC LIMIT 1;";
-                var cmd = new SQLiteCommand(sqlite_cmd.CommandText, conn);
-                SQLiteDataReader sqlite_datareader = cmd.ExecuteReader();
-
-                ticket_count = int.Parse(sqlite_datareader.ToString());
+                var cmd = new SQLiteCommand("SELECT COUNT(TicketID) from Tickets;", conn);
+                var count = cmd.ExecuteScalar();
+                int.TryParse(count.ToString(), out countValue);
             }
             catch (Exception ex)
             {
                 Console.WriteLine(ex);
                 Console.WriteLine("Failed to read number of tickets.");
             }
+            return countValue;
+        }
+        public static string GetTitle(SQLiteConnection conn, int Tid)
+        {
+            string title = "";
+            try
+            {
+                var cmd = new SQLiteCommand($"SELECT Title WHERE TicketID = {Tid}", conn);
+                title = cmd.ExecuteReader().ToString();
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine(ex);
+                Console.WriteLine("Failed to get title.");
+            }
+            return title;
+        }
+        public static void FillQueue(SQLiteConnection conn, Queue<Ticket> queue)
+        {
+            try
+            {
+                var cmd = new SQLiteCommand($"select * from Tickets order by OpenDate desc;", conn);
+                using SQLiteDataReader rdr = cmd.ExecuteReader();
+                while (rdr.Read())
+                {
+                    Ticket ticket = new Ticket();
+                    ticket.Tid = rdr.GetInt32(0);
+                    //ticket.EmpID = rdr.GetInt32(1);
+                    ticket.Title = rdr.GetString(2);
+                    ticket.Description = rdr.GetString(3);
+                    //ticket.Comment = rdr.GetString(4);
+                    ticket.OpenDate = Convert.ToDateTime(rdr.GetString(5));
+                    ticket.ClosedDate = rdr.GetString(6);
+                    ticket.Open = rdr.GetBoolean(7);
+                    ticket.Location = rdr.GetString(8);
+                    //ticket.Image = rdr.GetBlob(9);
+                    System.Console.WriteLine($"Added TID: {rdr.GetInt32(0)} Title: {rdr.GetString(2)} to queue.");
 
-            return ticket_count;
+                    queue.Enqueue(ticket);
+                }
+            }
+            catch (System.Exception ex)
+            {
+                System.Console.WriteLine(ex);
+                System.Console.WriteLine("Failed to get row.");
+            }
         }
     }
 }

@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Data.SQLite;
 
 namespace ConsoleHelpTicket
 {
@@ -7,29 +6,31 @@ namespace ConsoleHelpTicket
     {
         public string Title { get; set; }
         public string location { get; set; }
-        public string Description { get; }
-        public bool open { get; set; }
+        public int EmpID { get; set; }
+        public string Description { get; set; }
+        public string Comment { get; set; }
+        public string CommentTime { get; set; }
+        public bool Open { get; set; }
         public int Tid { get; set;  }
-        public DateTime OpenDate { get; }
-        public DateTime ClosedDate { get; }
-        public string comment { get; set; }
-        public Ticket(string title, string desc, string loc)
+        public DateTime OpenDate { get; set; }
+        public string ClosedDate { get; set; }
+        public string Location { get; set; }
+        public Ticket(string title = "Blank title", string desc = "Blank description", string loc = "Blank location")
         {
             Title = title;
             Description = desc;
             location = loc;
-            open = true;
+            Open = true;
             OpenDate = DateTime.Now;
         }
-        public void NewComment(SQLiteConnection connection, Ticket ticket, string text)
-        {
-            // TODO: adding update method for comment column
+        // public void NewComment(SQLiteConnection connection, Ticket ticket, string text)
+        // {
+        //     TODO: adding update method for comment column
 
-            Data.Insert(connection, ticket);
-            comment += "\n NEW COMMENT\n";
-            comment += DateTime.Now.ToString();
-            comment += text;
-        }
-        public void GetLocation() => Console.WriteLine(location);
+        //     Data.Insert(connection, ticket);
+        //     comment += "\n NEW COMMENT\n";
+        //     comment += DateTime.Now.ToString();
+        //     comment += text;
+        // }
     }
 }

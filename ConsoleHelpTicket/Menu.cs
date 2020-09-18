@@ -6,18 +6,24 @@ namespace ConsoleHelpTicket
 {
     class Menu
     {
-        private static Queue<int> queue = new Queue<int>();
-        private SQLiteConnection connection = Data.CreateConnection();
-        private int numOfTickets;
+        private static Queue<Ticket> queue = new Queue<Ticket>();
+        public void initDatabase()
+        {
+            SQLiteConnection conn = Data.CreateConnection();
+            Data.CreateTable(conn);
+            conn.Close();
+        }
+        public void initQueue()
+        {
+            SQLiteConnection conn = Data.CreateConnection();
+            int ticketCount = Data.GetTicketCount(conn);
+            Data.FillQueue(conn, queue);
+            conn.Close();
+        }
         public void Selection()
         {
             int select = 0;
             bool exit = true;
-
-            Console.WriteLine("Creating database connection...");
-            Console.WriteLine("Creating tables...");
-            Data.CreateTable(connection);
-            numOfTickets = Data.GetNumber(connection);
 
             do
             {
@@ -50,8 +56,6 @@ namespace ConsoleHelpTicket
                         break;
                     case 3:
                         Console.Clear();
-                        connection.Close();
-                        Console.WriteLine("Closing database connection...");
                         Console.WriteLine("Exiting Application...");
                         exit = false;
                         break;
@@ -94,9 +98,11 @@ namespace ConsoleHelpTicket
                     Console.WriteLine("Location cannot be empty.");
             } while (loc == "");
             Ticket ticket = new Ticket(title, desc, loc);
-            ticket.Tid = numOfTickets + 1;
-            queue.Enqueue(ticket.Tid);
-            Data.Insert(connection, ticket);
+            queue.Enqueue(ticket);
+            SQLiteConnection conn = Data.CreateConnection();
+            Data.Insert(conn, ticket);
+            ticket.Tid = Data.GetTicketCount(conn);
+            conn.Close();
 
             Console.WriteLine($"\nSuccessfully created ticket with title \"{ticket.Title}\", TicketID: {ticket.Tid}\n");
         }
@@ -142,36 +148,6 @@ namespace ConsoleHelpTicket
                     Console.WriteLine("You must enter a number.");
                 }
             } while (select < 1);
-
-
         }
-        // void getOneTicket()
-        // {
-        //     int tid = 0;
-        //     do
-        //     {
-        //         Console.Write("Enter ticket ID you would like to view: ");
-        //         try
-        //         {
-        //             tid = int.Parse(Console.ReadLine());
-        //         }
-        //         catch (FormatException)
-        //         {
-        //             Console.WriteLine("You must enter an intiger.");
-        //         }
-        //         if (Data.ticketQueue.Contains(tid))
-        //         {
-        //             Data.ticketQueue.TryGetValue(tid, out Ticket ticket);
-
-        //             Console.Write($"TicketID: {ticket.tid}\n");
-        //             Console.Write($"Ticket Title: {ticket.Title}\n");
-        //             Console.Write($"Ticket Location: {ticket.location}\n");
-        //             Console.WriteLine($"Ticket Description: {ticket.Description}");
-        //         }
-        //         else if (!Data.ticketQueue.Contains(tid))
-        //             Console.Write($"TicketID {tid} was not found. Try again, or enter -1 to exit: ");
-
-        //     } while (!Data.ticketQueue.Contains(tid) && tid != -1);
-        //}
     }
 }
