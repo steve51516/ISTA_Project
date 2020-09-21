@@ -7,14 +7,14 @@ namespace ConsoleHelpTicket
 {
     static public class Data
     {
-        public static SQLiteConnection CreateConnection()
+        public static SQLiteConnection CreateConnection(string dbName = "Tickets.db")
         {
             string executable = System.Reflection.Assembly.GetExecutingAssembly().Location;
             string path = (Path.GetDirectoryName(executable));
             AppDomain.CurrentDomain.SetData("DataDirectory", path);
 
             // Create a new database connection:
-            SQLiteConnection sqlite_conn = new SQLiteConnection(@"Data Source=|DataDirectory|\Tickets.db; Version = 3; New = True; Compress = True; ");
+            SQLiteConnection sqlite_conn = new SQLiteConnection($@"Data Source=|DataDirectory|\{dbName}; Version = 3; New = True; Compress = True; ");
             // Open the connection:
             try
             {
@@ -28,8 +28,10 @@ namespace ConsoleHelpTicket
             return sqlite_conn;
         }
 
-        public static void CreateTable(SQLiteConnection conn)
+        public static void CreateTable()
         {
+            SQLiteConnection conn = CreateConnection();
+
             SQLiteCommand sqlite_cmd;
             string Createsql = @"PRAGMA foreign_keys = ON;";
             string Createsql2 = @"CREATE TABLE IF NOT EXISTS Tickets(
@@ -69,16 +71,20 @@ namespace ConsoleHelpTicket
             sqlite_cmd.ExecuteNonQuery();
             //sqlite_cmd.CommandText = Createsql3;
             //sqlite_cmd.ExecuteNonQuery();
+            conn.Close();
         }
 
-        public static void Insert(SQLiteConnection conn, Ticket ticket)
+        public static void Insert(Ticket ticket)
         {
-            var cmd = new SQLiteCommand($"INSERT INTO Tickets (Title,Description,OpenDate,Location) VALUES (\"{ticket.Title}\", \"{ticket.Description}\", \"{ticket.OpenDate}\", \"{ticket.location}\");", conn);
+            SQLiteConnection conn = CreateConnection();
+            var cmd = new SQLiteCommand($"INSERT INTO Tickets (Title,Description,OpenDate,Location) VALUES (\"{ticket.Title}\", \"{ticket.Description}\", \"{DateTime.Now}\", \"{ticket.Location}\");", conn);
             Console.WriteLine("Inserting ticket into database");
             cmd.ExecuteNonQuery();
+            conn.Close();
         }
-        public static void UpdateComment(SQLiteConnection conn, Ticket ticket, string comment)
+        public static void UpdateComment(Ticket ticket, string comment)
         {
+            SQLiteConnection conn = CreateConnection();
             SQLiteCommand sqlite_cmd = conn.CreateCommand();
             sqlite_cmd.CommandText = $"UPDATE Tickets SET Comments = {comment} where TicketID = {ticket.Tid}";
 
@@ -92,9 +98,12 @@ namespace ConsoleHelpTicket
                 Console.WriteLine("Failed to update ticket.");
                 Console.WriteLine(ex);
             }
+            conn.Close();
         }
-        public static int GetTicketCount(SQLiteConnection conn)
+        public static int GetTicketCount()
         {
+            SQLiteConnection conn = CreateConnection();
+
             int countValue = 0;
             try
             {
@@ -107,10 +116,13 @@ namespace ConsoleHelpTicket
                 Console.WriteLine(ex);
                 Console.WriteLine("Failed to read number of tickets.");
             }
+            conn.Close();
             return countValue;
         }
-        public static string GetTitle(SQLiteConnection conn, int Tid)
+        public static string GetTitle(int Tid)
         {
+            SQLiteConnection conn = CreateConnection();
+
             string title = "";
             try
             {
@@ -122,37 +134,52 @@ namespace ConsoleHelpTicket
                 Console.WriteLine(ex);
                 Console.WriteLine("Failed to get title.");
             }
+            conn.Close();
             return title;
         }
-        public static void FillQueue(SQLiteConnection conn, Queue<Ticket> queue)
+        public static void GetTicket(Queue<Ticket> queue)
         {
+            SQLiteConnection conn = CreateConnection();
+
             try
             {
-                var cmd = new SQLiteCommand($"select * from Tickets order by OpenDate desc;", conn);
+                var cmd = new SQLiteCommand($"SELECT * FROM Tickets WHERE Open = true ORDER BY OpenDate desc;", conn);
                 using SQLiteDataReader rdr = cmd.ExecuteReader();
+
                 while (rdr.Read())
                 {
                     Ticket ticket = new Ticket();
                     ticket.Tid = rdr.GetInt32(0);
-                    //ticket.EmpID = rdr.GetInt32(1);
-                    ticket.Title = rdr.GetString(2);
-                    ticket.Description = rdr.GetString(3);
-                    //ticket.Comment = rdr.GetString(4);
-                    ticket.OpenDate = Convert.ToDateTime(rdr.GetString(5));
-                    ticket.ClosedDate = rdr.GetString(6);
-                    ticket.Open = rdr.GetBoolean(7);
-                    ticket.Location = rdr.GetString(8);
-                    //ticket.Image = rdr.GetBlob(9);
-                    System.Console.WriteLine($"Added TID: {rdr.GetInt32(0)} Title: {rdr.GetString(2)} to queue.");
+                    if (!rdr.IsDBNull(1))
+                        ticket.EmpID = rdr.GetInt32(1);
+                    if (!rdr.IsDBNull(2))
+                        ticket.Title = rdr.GetString(2);
+                    if (!rdr.IsDBNull(3))
+                        ticket.Description = rdr.GetString(3);
+                    if (!rdr.IsDBNull(4))
+                        ticket.Comment = rdr.GetString(4);
+                    if (!rdr.IsDBNull(5))
+                        ticket.CommentTime = DateTime.Parse(rdr.GetString(5));
+                    if (!rdr.IsDBNull(6))
+                        ticket.OpenDate = DateTime.Parse(rdr.GetString(6));
+                    //ticket.ClosedDate = rdr.GetDateTime(7);
+                    if (!rdr.IsDBNull(8))
+                        ticket.Open = rdr.GetBoolean(8);
+                    if (!rdr.IsDBNull(9))
+                        ticket.Location = rdr.GetString(9);
+                    if (!rdr.IsDBNull(10))
+                        ticket.Image = rdr.GetBlob(10, false);
+                    Console.WriteLine($"Added TID: {rdr.GetInt32(0)} Title: {rdr.GetString(2)} to queue.");
 
                     queue.Enqueue(ticket);
                 }
             }
-            catch (System.Exception ex)
+            catch (Exception ex)
             {
-                System.Console.WriteLine(ex);
-                System.Console.WriteLine("Failed to get row.");
+                Console.WriteLine(ex);
+                Console.WriteLine("Failed to get row.");
             }
+            conn.Close();
         }
     }
 }

@@ -9,16 +9,24 @@ namespace ConsoleHelpTicket
         private static Queue<Ticket> queue = new Queue<Ticket>();
         public void initDatabase()
         {
-            SQLiteConnection conn = Data.CreateConnection();
-            Data.CreateTable(conn);
-            conn.Close();
+            Data.CreateTable();
         }
         public void initQueue()
         {
             SQLiteConnection conn = Data.CreateConnection();
-            int ticketCount = Data.GetTicketCount(conn);
-            Data.FillQueue(conn, queue);
+            int ticketCount = Data.GetTicketCount();
+            Data.GetTicket(queue);
             conn.Close();
+            for (int i = 0; i < queue.Count; i++)
+            {
+                var ticket = queue.Peek();
+                Console.WriteLine(ticket.Tid);
+                Console.WriteLine(ticket.Title);
+                Console.WriteLine(ticket.OpenDate);
+                Console.WriteLine(ticket.Open);
+                Console.WriteLine(ticket.Location);
+                Console.WriteLine(ticket.Description);
+            }
         }
         public void Selection()
         {
@@ -100,9 +108,8 @@ namespace ConsoleHelpTicket
             Ticket ticket = new Ticket(title, desc, loc);
             queue.Enqueue(ticket);
             SQLiteConnection conn = Data.CreateConnection();
-            Data.Insert(conn, ticket);
-            ticket.Tid = Data.GetTicketCount(conn);
-            conn.Close();
+            Data.Insert(ticket);
+            ticket.Tid = Data.GetTicketCount();
 
             Console.WriteLine($"\nSuccessfully created ticket with title \"{ticket.Title}\", TicketID: {ticket.Tid}\n");
         }
