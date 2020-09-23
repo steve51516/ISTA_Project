@@ -17,6 +17,10 @@ namespace WebHelpTicket.Controllers
         {
             return View();
         }
+        public IActionResult NewTicket()
+        {
+            return View();
+        }
 
         public ViewResult Tables()
         {

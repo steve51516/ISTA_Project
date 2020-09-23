@@ -2,6 +2,7 @@
 using System.IO;
 using System.Data.SQLite;
 using System.Collections.Generic;
+using WebHelpTicket.Models;
 
 namespace WebHelpTicket
 {
@@ -80,7 +81,7 @@ namespace WebHelpTicket
         {
             SQLiteConnection conn = CreateConnection();
             SQLiteCommand sqlite_cmd = conn.CreateCommand();
-            sqlite_cmd.CommandText = $"UPDATE Tickets SET Comments = {comment} where TicketID = {ticket.Tid}";
+            sqlite_cmd.CommandText = $"UPDATE Tickets SET Comments = {comment} where TicketID = {ticket.id}";
 
             Console.WriteLine("Inserting comment into database");
             try
@@ -105,10 +106,8 @@ namespace WebHelpTicket
                 var count = cmd.ExecuteScalar();
                 int.TryParse(count.ToString(), out countValue);
             }
-            catch (Exception ex)
+            catch (Exception)
             {
-                Console.WriteLine(ex);
-                Console.WriteLine("Failed to read number of tickets.");
             }
             conn.Close();
             return countValue;
@@ -123,18 +122,16 @@ namespace WebHelpTicket
                 var cmd = new SQLiteCommand($"SELECT Title WHERE TicketID = {Tid}", conn);
                 title = cmd.ExecuteReader().ToString();
             }
-            catch (Exception ex)
+            catch (Exception)
             {
-                Console.WriteLine(ex);
-                Console.WriteLine("Failed to get title.");
             }
             conn.Close();
             return title;
         }
-        public static void GetTicket(Queue<Ticket> queue)
+        public static List<Ticket> GetTicket()
         {
             SQLiteConnection conn = CreateConnection();
-
+            List<Ticket> ticketsList = new List<Ticket>();
             try
             {
                 var cmd = new SQLiteCommand($"SELECT * FROM Tickets WHERE Open = true ORDER BY OpenDate desc;", conn);
@@ -143,7 +140,7 @@ namespace WebHelpTicket
                 while (rdr.Read())
                 {
                     Ticket ticket = new Ticket();
-                    ticket.Tid = rdr.GetInt32(0);
+                    ticket.id = rdr.GetInt32(0);
                     if (!rdr.IsDBNull(1))
                         ticket.EmpID = rdr.GetInt32(1);
                     if (!rdr.IsDBNull(2))
@@ -163,17 +160,15 @@ namespace WebHelpTicket
                         ticket.Location = rdr.GetString(9);
                     //if (!rdr.IsDBNull(10))
                     //    ticket.Image = rdr.GetBlob(10, false);
-                    Console.WriteLine($"Added TID: {rdr.GetInt32(0)} Title: {rdr.GetString(2)} to queue.");
-
-                    queue.Enqueue(ticket);
+                    ticket.DaysOpen = Math.Round((DateTime.Now - ticket.OpenDate).TotalDays, 1);
+                    ticketsList.Add(ticket);
                 }
             }
-            catch (Exception ex)
+            catch (Exception)
             {
-                Console.WriteLine(ex);
-                Console.WriteLine("Failed to get row.");
             }
             conn.Close();
+            return ticketsList;
         }
     }
 }

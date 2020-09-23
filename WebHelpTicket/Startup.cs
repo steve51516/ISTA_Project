@@ -3,8 +3,12 @@ using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
+using Microsoft.Data.Sqlite;
+using SQLitePCL;
 using Microsoft.EntityFrameworkCore;
 using WebHelpTicket.Models;
+using System.IO;
+using WebHelpTicket.Controllers;
 
 namespace WebHelpTicket
 {
@@ -15,12 +19,21 @@ namespace WebHelpTicket
             Configuration = configuration;
         }
 
-        public IConfiguration Configuration { get; }
+        public IConfiguration Configuration { get; set; }
 
         // This method gets called by the runtime. Use this method to add services to the container.
         public void ConfigureServices(IServiceCollection services)
         {
-            services.AddDbContext<TicketContext>(opt => opt.UseSqlite(@"Data Source=App_Data\Tickets.db}; Version = 3; New = True; Compress = True;"));
+            ConfigurationBuilder builder = new ConfigurationBuilder();
+            builder.SetBasePath(Directory.GetCurrentDirectory())
+                   .AddJsonFile("appsettings.json");
+
+            Configuration = builder.Build();
+            string ConnectionStr = Configuration.GetConnectionString("DefaultConnection");
+            services.AddDbContext<TicketContext>(options => options.UseSqlite(ConnectionStr));
+            Batteries.Init();
+
+            services.AddMvc();
             services.AddControllersWithViews();
         }
 
@@ -49,6 +62,10 @@ namespace WebHelpTicket
                 endpoints.MapControllerRoute(
                     name: "default",
                     pattern: "{controller=Home}/{action=Index}/{id?}");
+                endpoints.MapControllerRoute(
+                    name: "NewTicket",
+                    defaults: new { controller = "Ticket", action = "PostTicket" },
+                    pattern: "{controller=Ticket}/{action=PostTicket}/{id?}");
             });
         }
     }
