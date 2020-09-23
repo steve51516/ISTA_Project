@@ -4,7 +4,7 @@ using System.Data.SQLite;
 using System.Collections.Generic;
 using WebHelpTicket.Models;
 
-namespace WebHelpTicket
+namespace WebHelpTicket.Models
 {
     static public class Data
     {
