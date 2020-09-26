@@ -9,6 +9,8 @@ namespace WebHelpTicket.Models
 {
     public class Ticket
     {
+        // user ID from AspNetUser table.
+        public string OwnerID { get; set; }
         public string Title { get; set; }
         public int EmpID { get; set; }
         public string Description { get; set; }
@@ -24,7 +26,9 @@ namespace WebHelpTicket.Models
 
         public DateTime ClosedDate { get; set; }
         public string Location { get; set; }
+        public TicketStatus Status { get; set; }
         //public double DaysOpen { get; set; }
+
 
         Random random = new Random();
         public Ticket()
@@ -38,5 +42,11 @@ namespace WebHelpTicket.Models
             double DaysOpen = (DateTime.Today - OpenDate).TotalDays;
             return DaysOpen;
         }
+    }
+    public enum TicketStatus
+    {
+        Open,
+        Reopen,
+        Closed
     }
 }

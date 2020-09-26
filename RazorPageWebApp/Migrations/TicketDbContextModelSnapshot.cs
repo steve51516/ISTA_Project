@@ -35,9 +35,6 @@ namespace RazorPageWebApp.Migrations
                     b.Property<DateTime>("CommentTime")
                         .HasColumnType("datetime2");
 
-                    b.Property<double>("DaysOpen")
-                        .HasColumnType("float");
-
                     b.Property<string>("Description")
                         .HasColumnType("nvarchar(max)");
 
@@ -52,6 +49,12 @@ namespace RazorPageWebApp.Migrations
 
                     b.Property<DateTime>("OpenDate")
                         .HasColumnType("datetime2");
+
+                    b.Property<string>("OwnerID")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<int>("Status")
+                        .HasColumnType("int");
 
                     b.Property<string>("Title")
                         .HasColumnType("nvarchar(max)");

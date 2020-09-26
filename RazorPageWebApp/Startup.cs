@@ -10,6 +10,7 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.EntityFrameworkCore;
 using RazorPageWebApp.Data;
+using Microsoft.AspNetCore.Identity;
 
 namespace RazorPageWebApp
 {
@@ -26,6 +27,8 @@ namespace RazorPageWebApp
         public void ConfigureServices(IServiceCollection services)
         {
             services.AddRazorPages();
+            services.AddServerSideBlazor();
+
 
             services.AddDbContext<TicketDbContext>(options =>
                     options.UseSqlServer(Configuration.GetConnectionString("TicketDbContext")));
@@ -52,6 +55,8 @@ namespace RazorPageWebApp
             app.UseEndpoints(endpoints =>
             {
                 endpoints.MapRazorPages();
+                endpoints.MapBlazorHub();
+                endpoints.MapFallbackToPage("/_Host");
             });
         }
     }
