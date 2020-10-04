@@ -14,6 +14,6 @@ namespace RazorPageWebApp.Data
         {
         }
 
-        public DbSet<WebHelpTicket.Models.Ticket> Ticket { get; set; }
+        public DbSet<Ticket> Ticket { get; set; }
     }
 }

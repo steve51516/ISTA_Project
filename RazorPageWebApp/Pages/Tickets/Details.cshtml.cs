@@ -12,9 +12,9 @@ namespace RazorPageWebApp.Pages.Tickets
 {
     public class DetailsModel : PageModel
     {
-        private readonly RazorPageWebApp.Data.TicketDbContext _context;
+        private readonly TicketDbContext _context;
 
-        public DetailsModel(RazorPageWebApp.Data.TicketDbContext context)
+        public DetailsModel(TicketDbContext context)
         {
             _context = context;
         }

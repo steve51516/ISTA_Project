@@ -12,9 +12,9 @@ namespace RazorPageWebApp.Pages.Tickets
 {
     public class CreateModel : PageModel
     {
-        private readonly RazorPageWebApp.Data.TicketDbContext _context;
+        private readonly TicketDbContext _context;
 
-        public CreateModel(RazorPageWebApp.Data.TicketDbContext context)
+        public CreateModel(TicketDbContext context)
         {
             _context = context;
         }
@@ -35,11 +35,24 @@ namespace RazorPageWebApp.Pages.Tickets
             {
                 return Page();
             }
-
+            var ticketVM = new TicketViewModel
+            {
+                OwnerID = this.Ticket.OwnerID,
+                Title = this.Ticket.Title,
+                EmpID = this.Ticket.EmpID,
+                Description = this.Ticket.Description
+            };
             _context.Ticket.Add(Ticket);
             await _context.SaveChangesAsync();
 
             return RedirectToPage("./Index");
         }
+    }
+    public class TicketViewModel
+    {
+        public string OwnerID { get; set; }
+        public string Title { get; set; }
+        public int EmpID { get; set; }
+        public string Description { get; set; }
     }
 }

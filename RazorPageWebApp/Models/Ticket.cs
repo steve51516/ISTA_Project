@@ -20,7 +20,6 @@ namespace WebHelpTicket.Models
         public bool Open { get; set; }
         public int id { get; set;  }
         [DataType(DataType.Date)]
-
         public DateTime OpenDate { get; set; }
         [DataType(DataType.Date)]
 
@@ -34,13 +33,13 @@ namespace WebHelpTicket.Models
         public Ticket()
         {
             EmpID = random.Next(5);
-            OpenDate = DateTime.Now;
+            //OpenDate = DateTime.Now;
             Open = true;
         }
         public double DaysOpen()
         {
-            double DaysOpen = (DateTime.Today - OpenDate).TotalDays;
-            return DaysOpen;
+            //double DaysOpen = (DateTime.Today - OpenDate).TotalDays;
+            return 1;
         }
     }
     public enum TicketStatus

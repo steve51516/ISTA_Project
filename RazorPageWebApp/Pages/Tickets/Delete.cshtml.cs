@@ -12,9 +12,9 @@ namespace RazorPageWebApp.Pages.Tickets
 {
     public class DeleteModel : PageModel
     {
-        private readonly RazorPageWebApp.Data.TicketDbContext _context;
+        private readonly TicketDbContext _context;
 
-        public DeleteModel(RazorPageWebApp.Data.TicketDbContext context)
+        public DeleteModel(TicketDbContext context)
         {
             _context = context;
         }
